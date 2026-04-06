@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdSup - Video Ad Creator</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f11;
+      --bg2: #16161a;
+      --bg3: #1e1e24;
+      --bg4: #26262e;
+      --border: #2e2e38;
+      --accent: #00e5b4;
+      --accent-dim: rgba(0, 229, 180, 0.12);
+      --accent-glow: rgba(0, 229, 180, 0.3);
+      --text: #f0f0f5;
+      --text2: #9898b0;
+      --text3: #5a5a72;
+      --red: #ff4d6a;
+      --yellow: #ffc84a;
+      --blue: #4a9eff;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      height: 50px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      margin-right: 12px;
+    }
+
+    .logo span {
+      color: var(--accent);
+    }
+
+    .ratio-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .ratio-tab {
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.15s;
+      border: none;
+      background: transparent;
+    }
+
+    .ratio-tab.active {
+      background: var(--accent);
+      color: #0a0a0c;
+      font-weight: 700;
+    }
+
+    .ratio-tab:hover:not(.active) {
+      color: var(--text);
+      background: var(--bg4);
+    }
+
+    .spacer {
+      flex: 1;
+    }
+
+    .btn-matrix {
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-matrix:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-export {
+      padding: 7px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      border: none;
+      color: #0a0a0c;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .btn-export:hover {
+      background: #00ffca;
+      box-shadow: 0 0 22px var(--accent-glow);
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all 0.15s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* LAYOUT */
+    .layout {
+      display: grid;
+      grid-template-columns: 580px 1fr 450px;
+      height: calc(100vh - 50px);
+      overflow: hidden;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .left-panel::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .left-panel::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .left-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    /* LIBRARY */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .tab-row {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-pill.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tab-pill:hover:not(.active) {
+      border-color: var(--text3);
+      color: var(--text);
+    }
+
+    .tab-pill svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* PRODUCT GRID */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .product-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .product-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-dim);
+    }
+
+    .product-img {
+      width: 100%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg4);
+      font-size: 36px;
+    }
+
+    .product-name {
+      padding: 6px 8px;
+      font-size: 11px;
+      color: var(--text2);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ACTION ROW */
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text2);
+      font-size: 11.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .search-input {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text2);
+      font-size: 11.5px;
+      min-width: 0;
+    }
+
+    .search-input input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11.5px;
+      width: 100%;
+    }
+
+    .search-input input::placeholder {
+      color: var(--text3);
+    }
+
+    /* AVATAR SECTION */
+    .avatar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .avatar-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .avatar-header-left svg {
+      width: 16px;
+      height: 16px;
+      color: var(--accent);
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .avatar-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .avatar-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .avatar-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-dim);
+    }
+
+    .avatar-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--bg4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .avatar-name {
+      padding: 4px 4px;
+      font-size: 10px;
+      color: var(--text2);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .avatar-filter-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text2);
+      font-size: 10.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .filter-chip.active {
+      background: rgba(74, 158, 255, 0.15);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .filter-chip svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    /* TEMPLATE SECTION */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .template-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .template-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .template-card.selected {
+      border-color: var(--accent);
+    }
+
+    .template-img {
+      width: 100%;
+      aspect-ratio: 9/16;
+      background: var(--bg4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      position: relative;
+    }
+
+    .template-name {
+      padding: 5px 6px;
+      font-size: 10.5px;
+      color: var(--text2);
+      text-align: center;
+    }
+
+    /* TIMELINE */
+    .timeline-bar {
+      height: 70px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 8px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .timeline-label {
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+    }
+
+    .timeline-track {
+      height: 22px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .timeline-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, var(--accent) 0%, rgba(0, 229, 180, 0.5) 100%);
+      border-radius: 4px;
+      width: 40%;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+    }
+
+    .timeline-waveform {
+      display: flex;
+      align-items: center;
+      gap: 1.5px;
+      height: 100%;
+      padding: 3px 0;
+    }
+
+    .wave-bar {
+      width: 2px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 1px;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+
+    @keyframes wave {
+
+      0%,
+      100% {
+        height: 30%;
+      }
+
+      50% {
+        height: 90%;
+      }
+    }
+
+    /* CENTER PANEL */
+    .center-panel {
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 12px 18px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .preview-title {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-icon {
+      width: 16px;
+      height: 16px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--text3);
+      cursor: pointer;
+    }
+
+    .preview-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .video-frame {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      max-height: calc(100vh - 280px);
+      aspect-ratio: 16/9;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .video-thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a24 0%, #0d0d16 100%);
+      font-size: 80px;
+    }
+
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .play-btn {
+      width: 56px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .play-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.08);
+    }
+
+    .ratio-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 8px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      border-radius: 4px;
+      font-size: 11px;
+      color: var(--text2);
+    }
+
+    /* VIDEO CONTROLS */
+    .video-controls {
+      padding: 8px 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-btn {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #0a0a0c;
+      transition: all 0.15s;
+    }
+
+    .control-btn:hover {
+      background: #00ffca;
+    }
+
+    .time-display {
+      font-size: 12px;
+      color: var(--text2);
+      font-family: 'Space Grotesk', monospace;
+      white-space: nowrap;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--bg4);
+      border-radius: 2px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 28%;
+    }
+
+    .progress-thumb {
+      position: absolute;
+      top: 50%;
+      left: 28%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 2px solid #0a0a0c;
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .vol-icon {
+      color: var(--text3);
+      cursor: pointer;
+    }
+
+    .vol-icon:hover {
+      color: var(--text);
+    }
+
+    /* TRACKS SECTION */
+    .tracks-section {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .track-group {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .track-header {
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .track-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .track-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .track-dot.audio {
+      background: var(--blue);
+    }
+
+    .track-dot.text {
+      background: var(--yellow);
+    }
+
+    .track-body {
+      padding: 0 12px 10px;
+    }
+
+    .track-waveform {
+      height: 30px;
+      background: var(--bg3);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 1.5px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .track-waveform::after {
+      content: '';
+      position: absolute;
+      left: 30%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .wv {
+      width: 2px;
+      border-radius: 1px;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+
+    .wv.blue {
+      background: var(--blue);
+    }
+
+    .audio-track-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .audio-track-item:last-child {
+      border-bottom: none;
+    }
+
+    .audio-thumb {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--bg4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .audio-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .audio-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .audio-sub {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 1px;
+    }
+
+    .audio-badge {
+      padding: 2px 8px;
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--text3);
+    }
+
+    .audio-icon-btn {
+      width: 26px;
+      height: 26px;
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text3);
+      transition: all 0.15s;
+    }
+
+    .audio-icon-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* BOTTOM ACTION BAR */
+    .bottom-bar {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg2);
+    }
+
+    .bottom-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .bottom-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .bottom-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .btn-export-lg {
+      flex: 1;
+      padding: 9px 14px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #0a0a0c;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 0 18px var(--accent-glow);
+      transition: all 0.15s;
+    }
+
+    .btn-export-lg:hover {
+      background: #00ffca;
+      box-shadow: 0 0 28px var(--accent-glow);
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      background: var(--bg2);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .right-panel::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .right-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .right-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 8px;
+    }
+
+    .font-selector {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      transition: border-color 0.15s;
+    }
+
+    .font-selector:hover {
+      border-color: var(--accent);
+    }
+
+    .font-ghost {
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      color: var(--text3);
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .font-size-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .font-label {
+      font-size: 10px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .size-display {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .format-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .fmt-btn {
+      flex: 1;
+      padding: 5px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .fmt-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .fmt-btn.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* AUDIO SECTION RIGHT */
+    .audio-item-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .audio-item-right:last-child {
+      border-bottom: none;
+    }
+
+    .audio-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--bg4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .audio-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .audio-item-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .audio-item-sub {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 1px;
+    }
+
+    .audio-item-badge {
+      font-size: 10px;
+      color: var(--text3);
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    .play-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text3);
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .play-circle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* HISTORY SECTION */
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-item:hover .history-name {
+      color: var(--accent);
+    }
+
+    .history-thumb {
+      width: 42px;
+      height: 42px;
+      border-radius: 7px;
+      background: var(--bg4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .history-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .history-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.15s;
+    }
+
+    .history-date {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .history-status {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      flex-shrink: 0;
+    }
+
+    .history-status.done {
+      background: rgba(0, 229, 180, 0.15);
+      color: var(--accent);
+    }
+
+    .history-status.progress {
+      background: rgba(255, 200, 74, 0.15);
+      color: var(--yellow);
+    }
+
+    /* NHAN VAT SECTION */
+    .nhanvat-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .nhanvat-toprow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nhanvat-cats {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .nv-cat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .nv-cat.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .nv-cat:hover:not(.active) {
+      border-color: var(--text3);
+      color: var(--text);
+    }
+
+    .nv-cat svg {
+      flex-shrink: 0;
+    }
+
+    .nhanvat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .nv-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .nv-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .nv-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-dim);
+    }
+
+    .nv-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .nv-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .nv-badge.ai {
+      background: rgba(0, 229, 180, 0.18);
+      color: var(--accent);
+      border: 1px solid rgba(0, 229, 180, 0.3);
+    }
+
+    .nv-badge.real {
+      background: rgba(74, 158, 255, 0.18);
+      color: var(--blue);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+    }
+
+    .nv-badge.inf {
+      background: rgba(255, 200, 74, 0.18);
+      color: var(--yellow);
+      border: 1px solid rgba(255, 200, 74, 0.3);
+    }
+
+    .nv-name {
+      padding: 5px 6px;
+      font-size: 10.5px;
+      color: var(--text2);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nv-upload-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 9px 14px;
+      background: var(--bg3);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      color: var(--text2);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .nv-upload-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* SVG icons inline */
+    svg {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">Ad<span>Sup</span></div>
+    <div class="ratio-tabs">
+      <button class="ratio-tab">9:16</button>
+      <button class="ratio-tab active">1:1</button>
+      <button class="ratio-tab">1:1</button>
+      <button class="ratio-tab">16:9</button>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn-matrix">Matrix Bot</button>
+    <button class="btn-export">Xuất video</button>
+    <div class="icon-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24">
+        <path d="M4 8h16M4 16h16" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+      <!-- Library -->
+      <div>
+        <div class="section-header">
+          <div class="section-title">Thu viện</div>
+        </div>
+        <div class="tab-row">
+          <div class="tab-pill active">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+            </svg>
+            Sản phẩm
+          </div>
+          <div class="tab-pill">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+            Nhân vật
+          </div>
+          <div class="tab-pill">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+            </svg>
+            Mẫu template
+          </div>
+          <div class="tab-pill">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 6h18M3 12h18M3 18h18" />
+            </svg>
+            Chiến dịch ▾
+          </div>
+          <div class="tab-pill">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+            </svg>
+          </div>
+        </div>
+        <div class="product-grid">
+          <div class="product-card selected">
+            <div class="product-img">👕</div>
+            <div class="product-name">Áo thun</div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">👟</div>
+            <div class="product-name">Giày snekers</div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">🧴</div>
+            <div class="product-name">Mỹ phẩm</div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">🔧</div>
+            <div class="product-name">Sửa việc...</div>
+          </div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="action-row">
+          <button class="action-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+            </svg>
+            Upload sản phẩm
+          </button>
+          <button class="action-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            </svg>
+            Tự động xóa nền
+          </button>
+          <div class="search-input">
+            <svg width="12" height="12" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input type="text" placeholder="Bắt đầu...">
+          </div>
+          <div class="icon-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Avatars -->
+      <div>
+        <div class="avatar-header">
+          <div class="avatar-header-left">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+            <span class="section-title">Chọn nhân vật video</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="font-size:11px;color:var(--text3)">☁ Patche merrat</div>
+            <div style="color:var(--text3);font-size:14px">▾</div>
+          </div>
+        </div>
+        <div class="avatar-grid">
+          <div class="avatar-card selected">
+            <div class="avatar-img">👔</div>
+            <div class="avatar-name">Áo thun</div>
+          </div>
+          <div class="avatar-card">
+            <div class="avatar-img">🧑‍💼</div>
+            <div class="avatar-name">Nam 2D</div>
+          </div>
+          <div class="avatar-card">
+            <div class="avatar-img">🤖</div>
+            <div class="avatar-name">Ảnh AI</div>
+          </div>
+          <div class="avatar-card">
+            <div class="avatar-img">⭐</div>
+            <div class="avatar-name">Influencer</div>
+          </div>
+          <div class="avatar-card">
+            <div class="avatar-img">👨</div>
+            <div class="avatar-name">Trung niên</div>
+          </div>
+          <div class="avatar-card">
+            <div class="avatar-img">👩</div>
+            <div class="avatar-name">Giới t...</div>
+          </div>
+        </div>
+        <div class="avatar-filter-row">
+          <div class="filter-chip"><svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+            </svg> San piërs</div>
+          <div class="filter-chip active"><svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+            </svg> Ảnh Real</div>
+          <div class="filter-chip"><svg viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            </svg> Ảnh AI</div>
+          <div class="filter-chip" style="background:rgba(74,158,255,0.12);border-color:var(--blue);color:var(--blue)">
+            <svg style="stroke:var(--blue)" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+            Influencer
+          </div>
+          <div class="filter-chip">Trung niên</div>
+          <div class="filter-chip">Giới tr...</div>
+        </div>
+      </div>
+
+      <!-- Templates -->
+      <div>
+        <div class="section-header">
+          <div style="display:flex;align-items:center;gap:6px">
+            <svg width="15" height="15" viewBox="0 0 24 24" style="stroke:var(--accent)">
+              <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+            </svg>
+            <span class="section-title">Chọn template video</span>
+          </div>
+        </div>
+        <div class="template-grid">
+          <div class="template-card selected">
+            <div class="template-img">👕</div>
+            <div class="template-name">Áo thun</div>
+          </div>
+          <div class="template-card">
+            <div class="template-img">🧑‍💼</div>
+            <div class="template-name">Nam 2D</div>
+          </div>
+          <div class="template-card">
+            <div class="template-img">🤖</div>
+            <div class="template-name">Nam AI</div>
+          </div>
+          <div class="template-card">
+            <div class="template-img">👤</div>
+            <div class="template-name">Nam AI</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nhân vật Tab (expanded) -->
+      <div class="nhanvat-section">
+        <div class="nhanvat-toprow">
+          <div style="display:flex;align-items:center;gap:7px">
+            <svg width="15" height="15" viewBox="0 0 24 24" style="stroke:var(--accent)">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+            <span class="section-title">Nhân vật</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="search-input" style="width:140px">
+              <svg width="11" height="11" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              <input type="text" placeholder="Tìm nhân vật...">
+            </div>
+            <div class="icon-btn" style="width:28px;height:28px">
+              <svg width="12" height="12" viewBox="0 0 24 24">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="18" x2="20" y2="18" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category chips -->
+        <div class="nhanvat-cats">
+          <div class="nv-cat active">Tất cả</div>
+          <div class="nv-cat">
+            <svg width="10" height="10" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+            Ảnh Real
+          </div>
+          <div class="nv-cat">
+            <svg width="10" height="10" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            </svg>
+            Ảnh AI
+          </div>
+          <div class="nv-cat">
+            <svg width="10" height="10" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+            Influencer
+          </div>
+          <div class="nv-cat">Nam</div>
+          <div class="nv-cat">Nữ</div>
+          <div class="nv-cat">Trung niên</div>
+        </div>
+
+        <!-- Big avatar grid -->
+        <div class="nhanvat-grid">
+          <div class="nv-card selected">
+            <div class="nv-img" style="background:linear-gradient(160deg,#1e2530,#0d1219)">👔</div>
+            <div class="nv-badge ai">AI</div>
+            <div class="nv-name">Áo thun</div>
+          </div>
+          <div class="nv-card">
+            <div class="nv-img" style="background:linear-gradient(160deg,#1e2520,#0d160f)">🧑‍💼</div>
+            <div class="nv-badge real">Real</div>
+            <div class="nv-name">Nam 2D</div>
+          </div>
+          <div class="nv-card">
+            <div class="nv-img" style="background:linear-gradient(160deg,#231e30,#130d1a)">🤖</div>
+            <div class="nv-badge ai">AI</div>
+            <div class="nv-name">Ảnh AI</div>
+          </div>
+          <div class="nv-card">
+            <div class="nv-img" style="background:linear-gradient(160deg,#2a1e1e,#180d0d)">⭐</div>
+            <div class="nv-badge inf">KOL</div>
+            <div class="nv-name">Influencer</div>
+          </div>
+          <div class="nv-card">
+            <div class="nv-img" style="background:linear-gradient(160deg,#1e2530,#0d1219)">👨</div>
+            <div class="nv-badge real">Real</div>
+            <div class="nv-name">Trung niên</div>
+          </div>
+          <div class="nv-card">
+            <div class="nv-img" style="background:linear-gradient(160deg,#2a201e,#180f0d)">👩</div>
+            <div class="nv-badge real">Real</div>
+            <div class="nv-name">Nữ trẻ</div>
+          </div>
+          <div class="nv-card">
+            <div class="nv-img" style="background:linear-gradient(160deg,#1e2530,#0d1219)">🧔</div>
+            <div class="nv-badge ai">AI</div>
+            <div class="nv-name">Nam AI Pro</div>
+          </div>
+          <div class="nv-card">
+            <div class="nv-img" style="background:linear-gradient(160deg,#20231e,#0f130d)">🧑</div>
+            <div class="nv-badge inf">KOL</div>
+            <div class="nv-name">Gen Z</div>
+          </div>
+        </div>
+
+        <!-- Upload custom -->
+        <button class="nv-upload-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+          </svg>
+          Upload nhân vật của bạn
+        </button>
+      </div>
+
+    </div>
+
+    <!-- CENTER PANEL -->
+    <div class="center-panel">
+      <div class="preview-header">
+        <div class="preview-title">
+          Video preview
+          <div class="info-icon">?</div>
+        </div>
+      </div>
+
+      <div class="preview-area">
+        <div class="video-frame">
+          <div class="video-thumbnail">
+            <span>🎬</span>
+          </div>
+          <div class="video-overlay">
+            <div class="play-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none">
+                <polygon points="5,3 19,12 5,21" />
+              </svg>
+            </div>
+          </div>
+          <div class="ratio-badge">16:9</div>
+        </div>
+      </div>
+
+      <div class="video-controls">
+        <button class="control-btn">▶</button>
+        <span class="time-display">00:02 / 00:07</span>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+          <div class="progress-thumb"></div>
+        </div>
+        <span class="vol-icon">🔊</span>
+        <span class="vol-icon">📢</span>
+      </div>
+
+      <div class="tracks-section">
+        <!-- Video Track -->
+        <div class="track-group">
+          <div class="track-header">
+            <div class="track-header-left">
+              <div class="track-dot"></div>
+              VIDEO
+            </div>
+          </div>
+          <div class="track-body">
+            <div class="track-waveform">
+              <script>
+                // Generated wave bars
+              </script>
+              <!-- wave bars via JS below -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Track -->
+        <div class="track-group">
+          <div class="track-header">
+            <div class="track-header-left">
+              <div class="track-dot audio"></div>
+              AUDIO
+            </div>
+          </div>
+          <div class="track-body">
+            <div class="audio-track-item">
+              <div class="audio-thumb">🎵</div>
+              <div class="audio-info">
+                <div class="audio-name">BeatVlog 01</div>
+                <div class="audio-sub">Aủl nlaoo</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="width:60px;height:3px;background:var(--bg4);border-radius:2px;position:relative">
+                  <div
+                    style="position:absolute;left:0;top:0;bottom:0;width:70%;background:var(--blue);border-radius:2px">
+                  </div>
+                </div>
+                <span style="font-size:10px;color:var(--text3)">50r/s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Track -->
+        <div class="track-group">
+          <div class="track-header">
+            <div class="track-header-left">
+              <div class="track-dot text"></div>
+              TEXT
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3)">
+              <span>≈ số 182</span>
+              <span>182:20%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text section -->
+        <div class="track-group">
+          <div class="track-header">
+            <div class="track-header-left">
+              <div class="track-dot text"></div>
+              TEXT
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-bar">
+        <button class="bottom-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          Vân video
+        </button>
+        <button class="bottom-btn">
+          <svg viewBox="0 0 24 24">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <path d="M8 21h8M12 17v4" />
+          </svg>
+          Tạo hàng loạt
+        </button>
+        <button class="bottom-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+        </button>
+        <button class="btn-export-lg">Xuất video</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- Font Section -->
+      <div>
+        <div class="right-section-title">Văn bản</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">
+          ELIMF</div>
+        <div class="font-selector">
+          <span>Poppins</span>
+          <svg width="12" height="12" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="font-selector">
+          <span>Poppins</span>
+          <svg width="12" height="12" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="font-ghost">Monescrat</div>
+        <div class="font-size-row">
+          <span class="font-label">KIIOT FNUDG</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <div class="size-display">24</div>
+          <div class="format-btns" style="flex:1">
+            <button class="fmt-btn active"><b>B</b></button>
+            <button class="fmt-btn"><u>U</u></button>
+            <button class="fmt-btn" style="font-style:italic"><i>I</i></button>
+            <button class="fmt-btn">≡</button>
+            <button class="fmt-btn">≣</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Audio Section -->
+      <div>
+        <div class="right-section-title">Âm thanh</div>
+        <div class="audio-item-right">
+          <div class="audio-avatar">🎵</div>
+          <div class="audio-item-info">
+            <div class="audio-item-name">BeatVlog 01</div>
+            <div class="audio-item-sub">Aủl nlaoo</div>
+          </div>
+          <div class="audio-item-badge">686.</div>
+          <div class="play-circle">▶</div>
+        </div>
+        <div class="audio-item-right">
+          <div class="audio-avatar">🎤</div>
+          <div class="audio-item-info">
+            <div class="audio-item-name">Nam</div>
+            <div class="audio-item-sub">Kjn nhooed</div>
+          </div>
+          <div class="audio-item-badge">GBX</div>
+          <div class="play-circle">▶</div>
+        </div>
+        <div class="audio-item-right">
+          <div class="audio-avatar">🤖</div>
+          <div class="audio-item-info">
+            <div class="audio-item-name">Nữ AI</div>
+            <div class="audio-item-sub">Kjn Bjajica</div>
+          </div>
+          <div class="audio-item-badge">GBX</div>
+          <div class="play-circle">▶</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- History Section -->
+      <div>
+        <div class="right-section-title">Lịch sử</div>
+        <div class="history-item">
+          <div class="history-thumb">👕</div>
+          <div class="history-info">
+            <div class="history-name">Áo thun</div>
+            <div class="history-date">Klre//21024 17:30</div>
+          </div>
+          <div class="history-status done">✓</div>
+        </div>
+        <div class="history-item">
+          <div class="history-thumb">👟</div>
+          <div class="history-info">
+            <div class="history-name">Giày thể theo</div>
+            <div class="history-date">Klre//21024 16:30</div>
+          </div>
+          <div class="history-status progress">≡</div>
+        </div>
+        <div class="history-item">
+          <div class="history-thumb">💆</div>
+          <div class="history-info">
+            <div class="history-name">Dịch vụ Spa</div>
+            <div class="history-date">Klre//21024 16:33</div>
+          </div>
+          <div class="history-status done">✓</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Generate waveform bars
+    document.querySelectorAll('.track-waveform').forEach((el, i) => {
+      let html = '';
+      for (let j = 0; j < 80; j++) {
+        const h = Math.random() * 70 + 15;
+        const color = i === 0 ? 'var(--accent)' : 'var(--blue)';
+        html += `<div class="wv ${i === 1 ? 'blue' : ''}" style="height:${h}%;flex-shrink:0"></div>`;
+      }
+      el.innerHTML = el.innerHTML + html;
+    });
+
+    // Tab switching
+    document.querySelectorAll('.ratio-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.ratio-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // Tab pills
+    document.querySelectorAll('.tab-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.tab-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+      });
+    });
+
+    // Product cards
+    document.querySelectorAll('.product-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      });
+    });
+
+    // Avatar cards
+    document.querySelectorAll('.avatar-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.avatar-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      });
+    });
+
+    // Template cards
+    document.querySelectorAll('.template-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      });
+    });
+
+    // Play button toggle
+    let playing = false;
+    document.querySelectorAll('.play-btn, .control-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        playing = !playing;
+      });
+    });
+
+    // Filter chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+      });
+    });
+
+    // Nhan vat category chips
+    document.querySelectorAll('.nv-cat').forEach(cat => {
+      cat.addEventListener('click', () => {
+        document.querySelectorAll('.nv-cat').forEach(c => c.classList.remove('active'));
+        cat.classList.add('active');
+      });
+    });
+
+    // Nhan vat cards
+    document.querySelectorAll('.nv-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.nv-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      });
+    });
+
+    // Format buttons
+    document.querySelectorAll('.fmt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+      });
+    });
+  </script>
+</body>
+
+</html>
