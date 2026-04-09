@@ -30,11 +30,39 @@ export function AuthForm({ onLoginSuccess }: AuthFormProps) {
     e.preventDefault()
     setIsLoading(true)
 
-    // Simulate API call with 1.5s delay
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register"
+    const payload =
+      mode === "login"
+        ? {
+            email: formData.email,
+            password: formData.password,
+          }
+        : {
+            name: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+          }
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    })
+
+    const result = await response.json().catch(() => null)
 
     setIsLoading(false)
-    
+
+    if (!response.ok) {
+      toast.error(result?.error ?? "Unable to complete authentication", {
+        description: "Check your credentials and try again",
+      })
+      return
+    }
+
     if (mode === "login") {
       toast.success("Login successful!", {
         description: "Welcome back to AdSup",
@@ -44,18 +72,16 @@ export function AuthForm({ onLoginSuccess }: AuthFormProps) {
         description: "Welcome to AdSup",
       })
     }
-    
+
     onLoginSuccess()
   }
 
   const handleSocialLogin = async (provider: string) => {
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
     setIsLoading(false)
-    toast.success(`${provider} login successful!`, {
-      description: "Welcome to AdSup",
+    toast.info(`${provider} login will be wired later`, {
+      description: "OAuth is not connected in this scaffold yet",
     })
-    onLoginSuccess()
   }
 
   return (

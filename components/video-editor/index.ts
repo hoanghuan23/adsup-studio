@@ -1,1 +1,1 @@
-export { VideoEditor } from "./video-editor"
+export { VideoEditor } from "./video-editor-shell"

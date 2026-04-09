@@ -1,6 +1,6 @@
 "use client"
 
-import { Bot, Lock, Play, Pause, SkipForward } from "lucide-react"
+import { Bot, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -10,6 +10,7 @@ interface StudioHeaderProps {
   aspectRatio: AspectRatio
   onAspectRatioChange: (ratio: AspectRatio) => void
   onSwitchModule?: () => void
+  onLogout?: () => void
 }
 
 const aspectRatios: { id: AspectRatio; label: string }[] = [
@@ -22,6 +23,7 @@ export function StudioHeader({
   aspectRatio,
   onAspectRatioChange,
   onSwitchModule,
+  onLogout,
 }: StudioHeaderProps) {
   return (
     <header className="flex h-14 items-center justify-between border-b border-[#1a1a1a] bg-[#0d0d0d] px-4">
@@ -64,10 +66,16 @@ export function StudioHeader({
           Xuất video
         </Button>
 
-        {/* Lock icon */}
-        <button className="flex h-8 w-8 items-center justify-center rounded-lg text-[#52525b] transition-colors hover:text-white">
-          <Lock className="h-4 w-4" />
-        </button>
+        {/* Logout */}
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-1.5 rounded-lg border border-[#3f3f46] bg-transparent px-3 py-1.5 text-sm font-medium text-[#a1a1aa] transition-colors hover:border-[#52525b] hover:text-white"
+          >
+            <LogOut className="h-4 w-4" />
+            Đăng xuất
+          </button>
+        )}
       </div>
     </header>
   )

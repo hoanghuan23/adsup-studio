@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { ShoppingBag, User, LayoutTemplate, Megaphone, Play } from "lucide-react"
 import { ProductTab } from "./product-tab"
 import { CharacterTab } from "./character-tab"
@@ -43,19 +42,17 @@ export function LeftPanel({
   duration,
   onPlayPause,
 }: LeftPanelProps) {
-  const [tabSection, setTabSection] = useState<"products" | "characters" | "templates" | "campaigns">("products")
-
   return (
     <aside className="hidden w-96 flex-shrink-0 flex-col border-r border-[#1a1a1a] bg-[#0f0f0f] lg:flex">
       {/* Tab bar */}
       <div className="flex items-center gap-1 border-b border-[#1a1a1a] px-2 py-2">
         {tabs.map((tab) => {
           const Icon = tab.icon
-          const isActive = tabSection === tab.id
+          const isActive = activeTab === tab.id
           return (
             <button
               key={tab.id}
-              onClick={() => setTabSection(tab.id)}
+              onClick={() => onTabChange(tab.id)}
               className={cn(
                 "flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition-all",
                 isActive
@@ -72,10 +69,10 @@ export function LeftPanel({
 
       {/* Tab content */}
       <div className="flex-1 overflow-y-auto">
-        {tabSection === "products" && <ProductTab />}
-        {tabSection === "characters" && <CharacterTab />}
-        {tabSection === "templates" && <TemplateTab />}
-        {tabSection === "campaigns" && <CampaignTab />}
+        {activeTab === "products" && <ProductTab />}
+        {activeTab === "characters" && <CharacterTab />}
+        {activeTab === "templates" && <TemplateTab />}
+        {activeTab === "campaigns" && <CampaignTab />}
       </div>
 
       {/* Mini Player */}
